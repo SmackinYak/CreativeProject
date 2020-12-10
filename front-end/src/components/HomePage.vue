@@ -1,11 +1,9 @@
 <template>
 <div class="hero">
   <div class="heroBox">
-    <h1>Your Problems are no Laughing Matter to Us</h1>
-    <p><img src="/decoration.png"></p>
+    <h1>Expense Tracker</h1>
     <form class="pure-form">
       <fieldset>
-        <legend>Register for an account</legend>
         <input placeholder="first name" v-model="firstName">
         <input placeholder="last name" v-model="lastName">
       </fieldset>
@@ -18,10 +16,9 @@
       </fieldset>
     </form>
     <p v-if="error" class="error">{{error}}</p>
-    <p><img src="/decoration.png"></p>
     <form class="pure-form">
+      <br>
       <fieldset>
-        <legend>Login</legend>
         <input placeholder="username" v-model="usernameLogin">
         <input type="password" placeholder="password" v-model="passwordLogin">
       </fieldset>
@@ -35,6 +32,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   name: 'HomePage',
   data() {
@@ -48,6 +46,42 @@ export default {
       error: '',
       errorLogin: '',
     }
+  },
+  methods: {
+    async register() {
+      this.error = '';
+      this.errorLogin = '';
+      if (!this.firstName || !this.lastName || !this.username || !this.password)
+        return;
+      try {
+        let response = await axios.post('/api/users', {
+          firstName: this.firstName,
+          lastName: this.lastName,
+          username: this.username,
+          password: this.password,
+        });
+        this.$root.$data.user = response.data.user;
+      } catch (error) {
+        this.error = error.response.data.message;
+        this.$root.$data.user = null;
+      }
+    },
+    async login() {
+      this.error = '';
+      this.errorLogin = '';
+      if (!this.usernameLogin || !this.passwordLogin)
+        return;
+      try {
+        let response = await axios.post('/api/users/login', {
+          username: this.usernameLogin,
+          password: this.passwordLogin,
+        });
+        this.$root.$data.user = response.data.user;
+      } catch (error) {
+        this.errorLogin = "Error: " + error.response.data.message;
+        this.$root.$data.user = null;
+      }
+    }
   }
 }
 </script>
@@ -56,16 +90,18 @@ export default {
 h1 {
   font-size: 28px;
   font-variant: capitalize;
+  color: white;
 }
 
 .hero {
-  padding: 30px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 .heroBox {
-  background: white;
   opacity: 0.95;
   display: inline;
   padding: 20px;
@@ -76,9 +112,10 @@ h1 {
 
 .hero::after {
   content: "";
-  background-image: url("/pagliacci.jpg");
-  background-size: 100%;
+  background-image: url("../assets/background.jpg");
+  background-position: center;
   background-repeat: no-repeat;
+  background-size: cover;
   top: 0;
   left: 0;
   bottom: 0;
@@ -98,6 +135,19 @@ h1 {
 
 .hero form legend {
   font-size: 20px;
+}
+
+legend {
+  color: white;
+}
+
+button {
+  background-color: #238823;
+  width: 100%;
+  height: 48px;
+  border-radius: 4px;
+  color: white;
+  font-size: 1.25rem;
 }
 
 input {
